@@ -36,16 +36,7 @@ data Constellation
   = UrsaMajor
   | UrsaMinor
   | Cassiopeia
-  | Gemini
-  | Orion
-  | Taurus
-  | Leo
-  | Cygnus
   | Lyra
-  | Aquila
-  | Andromeda
-  | Perseus
-  | Auriga
   deriving (Eq, Ord, Show, Read, Enum, Bounded)
 
 data Star = Star
@@ -90,40 +81,6 @@ stars =
   , Star "Ruchbah"   Cassiopeia  1.4303  60.2353  2.68 Nothing "A star" "white" "main-seq" Nothing
   , Star "Segin"     Cassiopeia  1.9066  63.6701  3.37 Nothing "B star" "blue-white" "main-seq" Nothing
 
-    -- Gemini
-  , Star "Castor" Gemini  7.576666666666666   31.888638888888888  1.58 Nothing "multiple system" "blue-white" "main-seq" Nothing
-  , Star "Pollux" Gemini  7.7553777777777775  28.026305555555556  1.16 (Just 34) "K giant" "orange" "giant" Nothing
-  , Star "Wasat"  Gemini  7.3354              21.9822             3.53 Nothing "F star" "white-yellow" "main-seq" Nothing
-  , Star "Alhena" Gemini  6.6285              16.3992             1.93 Nothing "A star" "white" "main-seq" Nothing
-
-    -- Orion
-  , Star "Betelgeuse" Orion  5.919444444444445   7.406666666666667   0.50 Nothing "M supergiant (variable)" "red" "supergiant" Nothing
-  , Star "Bellatrix"  Orion  5.41885             6.3497              1.64 Nothing "B giant" "blue-white" "giant" Nothing
-  , Star "Meissa"     Orion  5.5856              9.9342              3.39 Nothing "O/B system" "blue-white" "main-seq" Nothing
-  , Star "Mintaka"    Orion  5.5334             (-0.2989)            2.23 Nothing "O/B multiple" "blue-white" "main-seq" Nothing
-  , Star "Alnilam"    Orion  5.6036             (-1.2019)            1.69 Nothing "B supergiant" "blue-white" "supergiant" Nothing
-  , Star "Alnitak"    Orion  5.6793             (-1.9428)            1.74 Nothing "O/B multiple" "blue-white" "main-seq" Nothing
-  , Star "Saiph"      Orion  5.7959             (-9.6697)            2.06 Nothing "B supergiant" "blue-white" "supergiant" Nothing
-  , Star "Rigel"      Orion  5.242222222222222  (-8.201666666666666) 0.12 Nothing "B supergiant" "blue-white" "supergiant" Nothing
-
-    -- Taurus
-  , Star "Aldebaran" Taurus  4.598675            16.509302777777776  0.85 Nothing "K giant" "orange" "giant" Nothing
-  , Star "Elnath"    Taurus  5.438194444444445   28.607861111111113  1.65 Nothing "B giant" "blue" "giant" Nothing
-  , Star "ZetaTau"   Taurus  5.6274              21.1425             2.97 Nothing "B star" "blue-white" "main-seq" Nothing
-
-    -- Leo
-  , Star "Regulus"  Leo 10.139444444444443  11.966944444444444  1.36 Nothing "multiple system" "blue-white" "main-seq" Nothing
-  , Star "Algieba"  Leo 10.3329             19.8417             2.01 Nothing "K giant binary" "yellow-orange" "giant" Nothing
-  , Star "Zosma"    Leo 11.2351             20.5236             2.56 Nothing "A star" "white" "main-seq" Nothing
-  , Star "Denebola" Leo 11.817499999999999  14.571944444444444  2.14 Nothing "A star" "white" "main-seq" Nothing
-  , Star "Chertan"  Leo 11.2373             15.4294             3.34 Nothing "A star" "white" "main-seq" Nothing
-
-    -- Cygnus (Northern Cross)
-  , Star "Deneb"   Cygnus 20.690530555555554  45.28033333333333  1.25 Nothing "A supergiant" "blue-white" "supergiant" Nothing
-  , Star "Sadr"    Cygnus 20.3705             40.2567            2.23 Nothing "F giant" "white-yellow" "giant" Nothing
-  , Star "Albireo" Cygnus 19.512025           27.959694444444445 3.05 Nothing "double star (optical)" "orange" "giant" Nothing
-  , Star "Gienah"  Cygnus 20.7702             33.9703            2.48 Nothing "K giant" "orange" "giant" Nothing
-  , Star "Rukh"    Cygnus 19.7496             45.1308            2.87 Nothing "B star" "blue-white" "main-seq" Nothing
 
     -- Lyra
   , Star "Vega"     Lyra 18.615555555555556  38.78361111111111  0.03 Nothing "A star" "white-blue" "main-seq" Nothing
@@ -132,27 +89,6 @@ stars =
   , Star "DeltaLyr" Lyra 18.9120             36.8986            4.22 Nothing "giant" "white" "giant" Nothing
   , Star "ZetaLyr"  Lyra 18.7461             37.6050            4.36 Nothing "A star" "white" "main-seq" Nothing
 
-    -- Aquila
-  , Star "Altair"  Aquila 19.84611111111111  8.868055555555555  0.76 Nothing "A star" "white" "main-seq" Nothing
-  , Star "Tarazed" Aquila 19.7710            10.6131            2.72 Nothing "K giant" "orange" "giant" Nothing
-  , Star "Alshain" Aquila 19.9219             6.4067            3.71 Nothing "G star" "yellow" "main-seq" Nothing
-
-    -- Andromeda
-  , Star "Alpheratz" Andromeda 0.1398  29.0904  2.06 Nothing "B star" "blue-white" "main-seq" Nothing
-  , Star "Mirach"    Andromeda 1.1621666666666666  35.62083333333334  2.07 Nothing "M giant" "red" "giant" Nothing
-  , Star "Almach"    Andromeda 2.0649777777777776  42.329861111111114 2.10 Nothing "multiple system" "orange" "giant" Nothing
-
-    -- Perseus
-  , Star "Mirfak" Perseus 3.405375           49.86125  1.79 Nothing "F supergiant" "white-yellow" "supergiant" Nothing
-  , Star "Algol"  Perseus 3.136147222222222  40.95563888888889  2.09 Nothing "eclipsing binary" "blue-white" "main-seq" Nothing
-  , Star "Atik"   Perseus 3.9019             31.8836   2.85 Nothing "B star" "blue-white" "main-seq" Nothing
-  , Star "EpsPer" Perseus 3.9642             40.0103   2.89 Nothing "B star" "blue-white" "main-seq" Nothing
-
-    -- Auriga
-  , Star "Capella"     Auriga 5.278138888888889  45.999027777777776  0.08 (Just 43) "binary giant system" "yellow" "giant" Nothing
-  , Star "Menkalinan"  Auriga 5.9921             44.9472            1.90 Nothing "A star binary" "white" "main-seq" Nothing
-  , Star "Mahasim"     Auriga 5.9954             37.2125            2.65 Nothing "A star" "white" "main-seq" Nothing
-  , Star "Almaaz"      Auriga 5.0328             43.8233            2.99 Nothing "eclipsing binary" "yellow" "giant" Nothing
   ]
 
 --------------------------------------------------------------------------------
@@ -178,42 +114,9 @@ constellationAsterisms =
   , (Cassiopeia,
       [ ("Caph","Schedar"), ("Schedar","GammaCas"), ("GammaCas","Ruchbah"), ("Ruchbah","Segin")
       ])
-  , (Gemini,
-      [ ("Castor","Pollux"), ("Castor","Wasat"), ("Pollux","Wasat"), ("Wasat","Alhena"), ("Pollux","Alhena")
-      ])
-  , (Orion,
-      [ ("Betelgeuse","Bellatrix")
-      , ("Bellatrix","Mintaka"), ("Mintaka","Alnilam"), ("Alnilam","Alnitak")
-      , ("Alnitak","Saiph"), ("Saiph","Rigel"), ("Rigel","Bellatrix")
-      , ("Betelgeuse","Alnitak")
-      , ("Meissa","Bellatrix"), ("Meissa","Betelgeuse")
-      ])
-  , (Taurus,
-      [ ("Aldebaran","Elnath"), ("Aldebaran","ZetaTau"), ("ZetaTau","Elnath")
-      ])
-  , (Leo,
-      [ ("Regulus","Algieba"), ("Algieba","Zosma"), ("Zosma","Denebola")
-      , ("Regulus","Chertan"), ("Chertan","Denebola")
-      ])
-  , (Cygnus,
-      [ ("Deneb","Sadr"), ("Sadr","Albireo"), ("Sadr","Gienah"), ("Sadr","Rukh")
-      ])
   , (Lyra,
       [ ("Sheliak","Sulafat"), ("Sulafat","DeltaLyr"), ("DeltaLyr","ZetaLyr"), ("ZetaLyr","Sheliak")
       , ("Vega","ZetaLyr"), ("Vega","Sheliak")
-      ])
-  , (Aquila,
-      [ ("Altair","Tarazed"), ("Altair","Alshain")
-      ])
-  , (Andromeda,
-      [ ("Alpheratz","Mirach"), ("Mirach","Almach")
-      ])
-  , (Perseus,
-      [ ("Algol","Mirfak"), ("Mirfak","EpsPer"), ("Mirfak","Atik"), ("Atik","EpsPer")
-      ])
-  , (Auriga,
-      [ ("Capella","Menkalinan"), ("Menkalinan","Mahasim"), ("Mahasim","Capella")
-      , ("Capella","Almaaz"), ("Almaaz","Menkalinan")
       ])
   ]
 
