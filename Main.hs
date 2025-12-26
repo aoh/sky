@@ -16,8 +16,8 @@ module Main where
 
 import System.Environment (getArgs)
 import System.Exit (exitFailure)
-import Data.Char (chr, ord)
-import Data.List (isPrefixOf)
+import Data.Char (chr, ord, toLower)
+import Data.List (isPrefixOf, isInfixOf)
 import Text.Read (readMaybe)
 import Data.Array.IO
 import Control.Monad (forM_, when)
@@ -223,6 +223,65 @@ projectAltAzToDot subW subH altDeg azDeg =
     in Just (round x, round y)
 
 --------------------------------------------------------------------------------
+-- ANSI color/intensity rendering
+
+data Intensity = IDim | INormal | IBright deriving (Eq, Show)
+
+intensityForMag :: Double -> Intensity
+intensityForMag m
+  | m <= 1.5   = IBright
+  | m <= 2.8   = INormal
+  | otherwise  = IDim
+
+-- Return ANSI base color code (30..37).
+ansiColorFromHint :: String -> Int
+ansiColorFromHint hint =
+  let h = map toLower hint
+  in if "blue" `isInfixOf` h
+        then 34   -- blue
+     else if "orange" `isInfixOf` h || "red" `isInfixOf` h
+        then 31   -- red (used for orange/red)
+     else if "yellow" `isInfixOf` h
+        then 33   -- yellow
+     else 37       -- white (default)
+
+-- styleCode = color*10 + intensityTag; 0 means "no style"
+encodeStyle :: Int -> Intensity -> Int
+encodeStyle color inten =
+  color * 10 + case inten of
+    IDim    -> 0
+    INormal -> 1
+    IBright -> 2
+
+decodeStyle :: Int -> (Int, Intensity)
+decodeStyle st =
+  let color = st `div` 10
+      tag   = st `mod` 10
+      inten = case tag of
+        0 -> IDim
+        1 -> INormal
+        _ -> IBright
+  in (color, inten)
+
+ansiReset :: String
+ansiReset = "\x1b[0m"
+
+ansiStart :: Int -> String
+ansiStart st =
+  let (color, inten) = decodeStyle st
+      attr = case inten of
+        IDim    -> "2"   -- faint
+        INormal -> "22"  -- normal intensity (clears bold/faint)
+        IBright -> "1"   -- bold/bright
+  in "\x1b[" ++ attr ++ ";" ++ show color ++ "m"
+
+lineStyle :: Int
+lineStyle = encodeStyle 37 IDim    -- dim white/gray for sticks
+
+boundaryStyle :: Int
+boundaryStyle = encodeStyle 37 IDim
+
+--------------------------------------------------------------------------------
 -- Bresenham for asterism “sticks”
 
 bresenham :: (Int,Int) -> (Int,Int) -> [(Int,Int)]
@@ -382,35 +441,81 @@ drawFaintLine subW subH masks p0 p1 =
           row   = y `mod` 4
       setDot masks cellX cellY col row
 
+updateBestStar :: IOUArray (Int,Int) Double
+               -> IOUArray (Int,Int) Int
+               -> Int -> Int
+               -> Double -> Int
+               -> IO ()
+updateBestStar bestMag bestColor cellX cellY mag color = do
+  cur <- readArray bestMag (cellX, cellY)
+  when (mag < cur) $ do
+    writeArray bestMag   (cellX, cellY) mag
+    writeArray bestColor (cellX, cellY) color
+
 buildCell :: Int -> Int
           -> IOUArray (Int,Int) Int
           -> IOUArray (Int,Int) Int
+          -> IOUArray (Int,Int) Int
+          -> IOUArray (Int,Int) Double
+          -> IOUArray (Int,Int) Int
           -> Int -> Int
-          -> IO Char
-buildCell subW subH masks overrides y x = do
+          -> IO (Char, Int)
+buildCell subW subH masks overrides overridesStyle bestStarMag bestStarColor y x = do
   let inside =
         let cx = x*2 + 1
             cy = y*4 + 2
         in insideDome subW subH cx cy
+
   if not inside
-    then pure ' '
+    then pure (' ', 0)
     else if nearBoundaryCell subW subH x y
-      then pure '·'
+      then pure ('·', boundaryStyle)
       else do
         ov <- readArray overrides (x,y)
         if ov /= 0
-          then pure (chr ov)
+          then do
+            sty <- readArray overridesStyle (x,y)
+            pure (chr ov, sty)
           else do
             m <- readArray masks (x,y)
-            pure $ if m == 0 then ' ' else brailleChar m
+            if m == 0
+              then pure (' ', 0)
+              else do
+                c <- readArray bestStarColor (x,y)
+                if c /= 0
+                  then do
+                    mag <- readArray bestStarMag (x,y)
+                    let sty = encodeStyle c (intensityForMag mag)
+                    pure (brailleChar m, sty)
+                  else
+                    pure (brailleChar m, lineStyle)
+
+renderRowAnsi :: [(Char, Int)] -> String
+renderRowAnsi cells = go 0 cells
+  where
+    go cur [] =
+      if cur /= 0 then ansiReset else ""
+    go cur ((ch, st):rest)
+      | st == cur =
+          ch : go cur rest
+      | st == 0 =
+          (if cur /= 0 then ansiReset else "") ++ [ch] ++ go 0 rest
+      | cur == 0 =
+          ansiStart st ++ [ch] ++ go st rest
+      | otherwise =
+          ansiReset ++ ansiStart st ++ [ch] ++ go st rest
 
 buildRow :: Int -> Int -> Int
          -> IOUArray (Int,Int) Int
          -> IOUArray (Int,Int) Int
+         -> IOUArray (Int,Int) Int
+         -> IOUArray (Int,Int) Double
+         -> IOUArray (Int,Int) Int
          -> Int
          -> IO String
-buildRow subW subH wChars masks overrides y =
-  mapM (buildCell subW subH masks overrides y) [0..wChars-1]
+buildRow subW subH wChars masks overrides overridesStyle bestStarMag bestStarColor y = do
+  cells <- mapM (buildCell subW subH masks overrides overridesStyle bestStarMag bestStarColor y) [0..wChars-1]
+  pure (renderRowAnsi cells)
 
 main :: IO ()
 main = do
@@ -444,7 +549,17 @@ main = do
 
       masks <- newArray ((0,0), (wChars-1, hChars-1)) 0
         :: IO (IOUArray (Int,Int) Int)
+
       overrides <- newArray ((0,0), (wChars-1, hChars-1)) (0 :: Int)
+        :: IO (IOUArray (Int,Int) Int)
+
+      overridesStyle <- newArray ((0,0), (wChars-1, hChars-1)) (0 :: Int)
+        :: IO (IOUArray (Int,Int) Int)
+
+      bestStarMag <- newArray ((0,0), (wChars-1, hChars-1)) (1/0 :: Double) -- +Infinity
+        :: IO (IOUArray (Int,Int) Double)
+
+      bestStarColor <- newArray ((0,0), (wChars-1, hChars-1)) (0 :: Int)
         :: IO (IOUArray (Int,Int) Int)
 
       let starDots = map (computeStarDot lat lstH subW subH) stars
@@ -463,20 +578,29 @@ main = do
                 cellY = dy `div` 4
             if cellX < 0 || cellX >= wChars || cellY < 0 || cellY >= hChars
               then pure ()
-              else case symbolForMag (stMagV s) of
-                Just sym -> writeArray overrides (cellX,cellY) (ord sym)
-                Nothing  -> do
-                  forM_ (dotOffsetsForMag (stMagV s)) $ \(ox,oy) -> do
-                    let x' = dx + ox
-                        y' = dy + oy
-                    when (x' >= 0 && x' < subW && y' >= 0 && y' < subH && insideDome subW subH x' y') $ do
-                      let cx' = x' `div` 2
-                          cy' = y' `div` 4
-                          col = x' `mod` 2
-                          row = y' `mod` 4
-                      setDot masks cx' cy' col row
+              else do
+                let color = ansiColorFromHint (stColorHint s)
+                    inten = intensityForMag (stMagV s)
+                    stSty = encodeStyle color inten
+
+                case symbolForMag (stMagV s) of
+                  Just sym -> do
+                    writeArray overrides      (cellX,cellY) (ord sym)
+                    writeArray overridesStyle (cellX,cellY) stSty
+                    updateBestStar bestStarMag bestStarColor cellX cellY (stMagV s) color
+                  Nothing  -> do
+                    forM_ (dotOffsetsForMag (stMagV s)) $ \(ox,oy) -> do
+                      let x' = dx + ox
+                          y' = dy + oy
+                      when (x' >= 0 && x' < subW && y' >= 0 && y' < subH && insideDome subW subH x' y') $ do
+                        let cx' = x' `div` 2
+                            cy' = y' `div` 4
+                            col = x' `mod` 2
+                            row = y' `mod` 4
+                        setDot masks cx' cy' col row
+                        updateBestStar bestStarMag bestStarColor cx' cy' (stMagV s) color
 
       forM_ [0..hChars-1] $ \y -> do
-        row <- buildRow subW subH wChars masks overrides y
+        row <- buildRow subW subH wChars masks overrides overridesStyle bestStarMag bestStarColor y
         putStrLn row
 
