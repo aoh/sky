@@ -32,46 +32,193 @@ import Data.Time.Calendar (toModifiedJulianDay)
 --------------------------------------------------------------------------------
 -- Data model
 
+data Constellation
+  = UrsaMajor
+  | UrsaMinor
+  | Cassiopeia
+  | Gemini
+  | Orion
+  | Taurus
+  | Leo
+  | Cygnus
+  | Lyra
+  | Aquila
+  | Andromeda
+  | Perseus
+  | Auriga
+  deriving (Eq, Ord, Show, Read, Enum, Bounded)
+
 data Star = Star
-  { stName       :: String
-  , stRaHours    :: Double
-  , stDecDeg     :: Double
-  , stMagV       :: Double
-  , stDistanceLy :: Maybe Double
-  , stKind       :: String
-  , stColorHint  :: String
-  , stSizeHint   :: String
-  , stLuminosity :: Maybe Double
+  { stName          :: String
+  , stConstellation :: Constellation
+  , stRaHours       :: Double
+  , stDecDeg        :: Double
+  , stMagV          :: Double
+  , stDistanceLy    :: Maybe Double
+  , stKind          :: String
+  , stColorHint     :: String
+  , stSizeHint      :: String
+  , stLuminosity    :: Maybe Double
   } deriving (Show)
 
--- Minimal verification set: Polaris + Big Dipper + Cassiopeia.
+-- Major northern-hemisphere constellations with enough stars to draw stick figures.
+-- (Not a full catalog; it includes all named endpoints used by the edge lists.)
 stars :: [Star]
 stars =
-  [ Star "Polaris"  2.5303  89.2641  1.98 (Just 433) "Cepheid supergiant system" "yellow-white" "large" Nothing
+  [ -- Ursa Minor (Little Dipper) - 7 stars
+    Star "Polaris"  UrsaMinor  2.5303  89.2641  1.98 (Just 433) "Cepheid supergiant system" "yellow-white" "large" Nothing
+  , Star "Yildun"   UrsaMinor 17.5369  86.5864  4.35 Nothing "A star" "white" "main-seq" Nothing
+  , Star "EpsUMi"   UrsaMinor 16.7662  82.0372  4.21 Nothing "G star" "yellow" "main-seq" Nothing
+  , Star "ZetaUMi"  UrsaMinor 15.7346  77.7944  4.32 Nothing "A star" "white" "main-seq" Nothing
+  , Star "Kochab"   UrsaMinor 14.8451  74.1556  2.07 Nothing "K giant" "orange" "giant" Nothing
+  , Star "Pherkad"  UrsaMinor 15.3455  71.8340  3.00 Nothing "A giant" "white" "giant" Nothing
+  , Star "EtaUMi"   UrsaMinor 16.2918  75.7547  4.95 (Just 98) "F star" "white-yellow" "main-seq" Nothing  -- HIP 79822
 
-  -- Big Dipper (Ursa Major asterism)
-  , Star "Dubhe"   11.0621  61.7509  1.79 Nothing "K giant" "orange" "giant" Nothing
-  , Star "Merak"   11.0307  56.3824  2.37 Nothing "A star"  "white"  "main-seq" Nothing
-  , Star "Phecda"  11.8972  53.6948  2.44 Nothing "A star"  "white"  "main-seq" Nothing
-  , Star "Megrez"  12.2571  57.0326  3.31 Nothing "A star"  "white"  "main-seq" Nothing
-  , Star "Alioth"  12.9005  55.9598  1.77 Nothing "A star"  "white"  "main-seq" Nothing
-  , Star "Mizar"   13.3988  54.9254  2.04 Nothing "multiple system" "white" "main-seq" Nothing
-  , Star "Alkaid"  13.7922  49.3131  1.86 Nothing "B star"  "blue-white" "main-seq" Nothing
+    -- Ursa Major (Big Dipper asterism)
+  , Star "Dubhe"   UrsaMajor 11.0621  61.7509  1.79 Nothing "K giant" "orange" "giant" Nothing
+  , Star "Merak"   UrsaMajor 11.0307  56.3824  2.37 Nothing "A star"  "white"  "main-seq" Nothing
+  , Star "Phecda"  UrsaMajor 11.8972  53.6948  2.44 Nothing "A star"  "white"  "main-seq" Nothing
+  , Star "Megrez"  UrsaMajor 12.2571  57.0326  3.31 Nothing "A star"  "white"  "main-seq" Nothing
+  , Star "Alioth"  UrsaMajor 12.9005  55.9598  1.77 Nothing "A star"  "white"  "main-seq" Nothing
+  , Star "Mizar"   UrsaMajor 13.3988  54.9254  2.04 Nothing "multiple system" "white" "main-seq" Nothing
+  , Star "Alkaid"  UrsaMajor 13.7922  49.3131  1.86 Nothing "B star"  "blue-white" "main-seq" Nothing
 
-  -- Cassiopeia “W”
-  , Star "Caph"      0.1529  59.1498  2.28 Nothing "F star" "white-yellow" "subgiant" Nothing
-  , Star "Schedar"   0.6751  56.5373  2.24 Nothing "K giant" "orange" "giant" Nothing
-  , Star "GammaCas"  0.9451  60.7167  2.47 Nothing "Be star" "blue" "main-seq" Nothing
-  , Star "Ruchbah"   1.4303  60.2353  2.68 Nothing "A star" "white" "main-seq" Nothing
-  , Star "Segin"     1.9066  63.6701  3.37 Nothing "B star" "blue-white" "main-seq" Nothing
+    -- Cassiopeia “W”
+  , Star "Caph"      Cassiopeia  0.1529  59.1498  2.28 Nothing "F star" "white-yellow" "subgiant" Nothing
+  , Star "Schedar"   Cassiopeia  0.6751  56.5373  2.24 Nothing "K giant" "orange" "giant" Nothing
+  , Star "GammaCas"  Cassiopeia  0.9451  60.7167  2.47 Nothing "Be star" "blue" "main-seq" Nothing
+  , Star "Ruchbah"   Cassiopeia  1.4303  60.2353  2.68 Nothing "A star" "white" "main-seq" Nothing
+  , Star "Segin"     Cassiopeia  1.9066  63.6701  3.37 Nothing "B star" "blue-white" "main-seq" Nothing
+
+    -- Gemini
+  , Star "Castor" Gemini  7.576666666666666   31.888638888888888  1.58 Nothing "multiple system" "blue-white" "main-seq" Nothing
+  , Star "Pollux" Gemini  7.7553777777777775  28.026305555555556  1.16 (Just 34) "K giant" "orange" "giant" Nothing
+  , Star "Wasat"  Gemini  7.3354              21.9822             3.53 Nothing "F star" "white-yellow" "main-seq" Nothing
+  , Star "Alhena" Gemini  6.6285              16.3992             1.93 Nothing "A star" "white" "main-seq" Nothing
+
+    -- Orion
+  , Star "Betelgeuse" Orion  5.919444444444445   7.406666666666667   0.50 Nothing "M supergiant (variable)" "red" "supergiant" Nothing
+  , Star "Bellatrix"  Orion  5.41885             6.3497              1.64 Nothing "B giant" "blue-white" "giant" Nothing
+  , Star "Meissa"     Orion  5.5856              9.9342              3.39 Nothing "O/B system" "blue-white" "main-seq" Nothing
+  , Star "Mintaka"    Orion  5.5334             (-0.2989)            2.23 Nothing "O/B multiple" "blue-white" "main-seq" Nothing
+  , Star "Alnilam"    Orion  5.6036             (-1.2019)            1.69 Nothing "B supergiant" "blue-white" "supergiant" Nothing
+  , Star "Alnitak"    Orion  5.6793             (-1.9428)            1.74 Nothing "O/B multiple" "blue-white" "main-seq" Nothing
+  , Star "Saiph"      Orion  5.7959             (-9.6697)            2.06 Nothing "B supergiant" "blue-white" "supergiant" Nothing
+  , Star "Rigel"      Orion  5.242222222222222  (-8.201666666666666) 0.12 Nothing "B supergiant" "blue-white" "supergiant" Nothing
+
+    -- Taurus
+  , Star "Aldebaran" Taurus  4.598675            16.509302777777776  0.85 Nothing "K giant" "orange" "giant" Nothing
+  , Star "Elnath"    Taurus  5.438194444444445   28.607861111111113  1.65 Nothing "B giant" "blue" "giant" Nothing
+  , Star "ZetaTau"   Taurus  5.6274              21.1425             2.97 Nothing "B star" "blue-white" "main-seq" Nothing
+
+    -- Leo
+  , Star "Regulus"  Leo 10.139444444444443  11.966944444444444  1.36 Nothing "multiple system" "blue-white" "main-seq" Nothing
+  , Star "Algieba"  Leo 10.3329             19.8417             2.01 Nothing "K giant binary" "yellow-orange" "giant" Nothing
+  , Star "Zosma"    Leo 11.2351             20.5236             2.56 Nothing "A star" "white" "main-seq" Nothing
+  , Star "Denebola" Leo 11.817499999999999  14.571944444444444  2.14 Nothing "A star" "white" "main-seq" Nothing
+  , Star "Chertan"  Leo 11.2373             15.4294             3.34 Nothing "A star" "white" "main-seq" Nothing
+
+    -- Cygnus (Northern Cross)
+  , Star "Deneb"   Cygnus 20.690530555555554  45.28033333333333  1.25 Nothing "A supergiant" "blue-white" "supergiant" Nothing
+  , Star "Sadr"    Cygnus 20.3705             40.2567            2.23 Nothing "F giant" "white-yellow" "giant" Nothing
+  , Star "Albireo" Cygnus 19.512025           27.959694444444445 3.05 Nothing "double star (optical)" "orange" "giant" Nothing
+  , Star "Gienah"  Cygnus 20.7702             33.9703            2.48 Nothing "K giant" "orange" "giant" Nothing
+  , Star "Rukh"    Cygnus 19.7496             45.1308            2.87 Nothing "B star" "blue-white" "main-seq" Nothing
+
+    -- Lyra
+  , Star "Vega"     Lyra 18.615555555555556  38.78361111111111  0.03 Nothing "A star" "white-blue" "main-seq" Nothing
+  , Star "Sheliak"  Lyra 18.8347             33.3628            3.52 Nothing "binary system" "blue-white" "main-seq" Nothing
+  , Star "Sulafat"  Lyra 18.9824             32.6894            3.25 Nothing "B giant" "blue" "giant" Nothing
+  , Star "DeltaLyr" Lyra 18.9120             36.8986            4.22 Nothing "giant" "white" "giant" Nothing
+  , Star "ZetaLyr"  Lyra 18.7461             37.6050            4.36 Nothing "A star" "white" "main-seq" Nothing
+
+    -- Aquila
+  , Star "Altair"  Aquila 19.84611111111111  8.868055555555555  0.76 Nothing "A star" "white" "main-seq" Nothing
+  , Star "Tarazed" Aquila 19.7710            10.6131            2.72 Nothing "K giant" "orange" "giant" Nothing
+  , Star "Alshain" Aquila 19.9219             6.4067            3.71 Nothing "G star" "yellow" "main-seq" Nothing
+
+    -- Andromeda
+  , Star "Alpheratz" Andromeda 0.1398  29.0904  2.06 Nothing "B star" "blue-white" "main-seq" Nothing
+  , Star "Mirach"    Andromeda 1.1621666666666666  35.62083333333334  2.07 Nothing "M giant" "red" "giant" Nothing
+  , Star "Almach"    Andromeda 2.0649777777777776  42.329861111111114 2.10 Nothing "multiple system" "orange" "giant" Nothing
+
+    -- Perseus
+  , Star "Mirfak" Perseus 3.405375           49.86125  1.79 Nothing "F supergiant" "white-yellow" "supergiant" Nothing
+  , Star "Algol"  Perseus 3.136147222222222  40.95563888888889  2.09 Nothing "eclipsing binary" "blue-white" "main-seq" Nothing
+  , Star "Atik"   Perseus 3.9019             31.8836   2.85 Nothing "B star" "blue-white" "main-seq" Nothing
+  , Star "EpsPer" Perseus 3.9642             40.0103   2.89 Nothing "B star" "blue-white" "main-seq" Nothing
+
+    -- Auriga
+  , Star "Capella"     Auriga 5.278138888888889  45.999027777777776  0.08 (Just 43) "binary giant system" "yellow" "giant" Nothing
+  , Star "Menkalinan"  Auriga 5.9921             44.9472            1.90 Nothing "A star binary" "white" "main-seq" Nothing
+  , Star "Mahasim"     Auriga 5.9954             37.2125            2.65 Nothing "A star" "white" "main-seq" Nothing
+  , Star "Almaaz"      Auriga 5.0328             43.8233            2.99 Nothing "eclipsing binary" "yellow" "giant" Nothing
+  ]
+
+--------------------------------------------------------------------------------
+-- Constellation "stick figure" edges
+-- Each constellation has its own edge list; all are concatenated into asterismEdges.
+
+constellationAsterisms :: [(Constellation, [(String, String)])]
+constellationAsterisms =
+  [ (UrsaMajor,
+      [ ("Merak","Dubhe"), ("Dubhe","Megrez"), ("Megrez","Phecda"), ("Phecda","Merak")
+      , ("Megrez","Alioth"), ("Alioth","Mizar"), ("Mizar","Alkaid")
+      ])
+  , (UrsaMinor,
+      [ ("Polaris","Yildun")
+      , ("Yildun","EpsUMi")
+      , ("EpsUMi","ZetaUMi")
+      -- bowl
+      , ("ZetaUMi","Kochab")
+      , ("Kochab","Pherkad")
+      , ("Pherkad","EtaUMi")
+      , ("EtaUMi","ZetaUMi")
+      ])
+  , (Cassiopeia,
+      [ ("Caph","Schedar"), ("Schedar","GammaCas"), ("GammaCas","Ruchbah"), ("Ruchbah","Segin")
+      ])
+  , (Gemini,
+      [ ("Castor","Pollux"), ("Castor","Wasat"), ("Pollux","Wasat"), ("Wasat","Alhena"), ("Pollux","Alhena")
+      ])
+  , (Orion,
+      [ ("Betelgeuse","Bellatrix")
+      , ("Bellatrix","Mintaka"), ("Mintaka","Alnilam"), ("Alnilam","Alnitak")
+      , ("Alnitak","Saiph"), ("Saiph","Rigel"), ("Rigel","Bellatrix")
+      , ("Betelgeuse","Alnitak")
+      , ("Meissa","Bellatrix"), ("Meissa","Betelgeuse")
+      ])
+  , (Taurus,
+      [ ("Aldebaran","Elnath"), ("Aldebaran","ZetaTau"), ("ZetaTau","Elnath")
+      ])
+  , (Leo,
+      [ ("Regulus","Algieba"), ("Algieba","Zosma"), ("Zosma","Denebola")
+      , ("Regulus","Chertan"), ("Chertan","Denebola")
+      ])
+  , (Cygnus,
+      [ ("Deneb","Sadr"), ("Sadr","Albireo"), ("Sadr","Gienah"), ("Sadr","Rukh")
+      ])
+  , (Lyra,
+      [ ("Sheliak","Sulafat"), ("Sulafat","DeltaLyr"), ("DeltaLyr","ZetaLyr"), ("ZetaLyr","Sheliak")
+      , ("Vega","ZetaLyr"), ("Vega","Sheliak")
+      ])
+  , (Aquila,
+      [ ("Altair","Tarazed"), ("Altair","Alshain")
+      ])
+  , (Andromeda,
+      [ ("Alpheratz","Mirach"), ("Mirach","Almach")
+      ])
+  , (Perseus,
+      [ ("Algol","Mirfak"), ("Mirfak","EpsPer"), ("Mirfak","Atik"), ("Atik","EpsPer")
+      ])
+  , (Auriga,
+      [ ("Capella","Menkalinan"), ("Menkalinan","Mahasim"), ("Mahasim","Capella")
+      , ("Capella","Almaaz"), ("Almaaz","Menkalinan")
+      ])
   ]
 
 asterismEdges :: [(String, String)]
-asterismEdges =
-  [ ("Merak","Dubhe"), ("Dubhe","Megrez"), ("Megrez","Phecda"), ("Phecda","Merak")
-  , ("Megrez","Alioth"), ("Alioth","Mizar"), ("Mizar","Alkaid")
-  , ("Caph","Schedar"), ("Schedar","GammaCas"), ("GammaCas","Ruchbah"), ("Ruchbah","Segin")
-  ]
+asterismEdges = concatMap snd constellationAsterisms
 
 --------------------------------------------------------------------------------
 -- Math / astronomy helpers
@@ -150,7 +297,7 @@ radecToAltAz latDeg lstHours raHours decDeg =
   in (rad2deg alt, rad2deg az)
 
 --------------------------------------------------------------------------------
--- Rendering (braille grid + bright overrides), no Data.Bits
+-- Rendering (braille grid + per-cell override), no Data.Bits
 
 dotBitIndex :: Int -> Int -> Int
 dotBitIndex col row =
@@ -408,18 +555,13 @@ parseArgs args0 =
 --------------------------------------------------------------------------------
 -- Plot orchestration
 
-symbolForMag :: Double -> Maybe Char
+-- Render *every* star as a symbol (dim stars get a dim symbol).
+symbolForMag :: Double -> Char
 symbolForMag m
-  | m <= 1.0   = Just '✶'
-  | m <= 2.0   = Just '✦'
-  | m <= 3.0   = Just '✧'
-  | otherwise  = Nothing
-
-dotOffsetsForMag :: Double -> [(Int,Int)]
-dotOffsetsForMag m
-  | m <= 3.2   = [(0,0),(1,0),(0,1)]
-  | m <= 4.0   = [(0,0),(1,0)]
-  | otherwise  = [(0,0)]
+  | m <= 1.0   = '✶'
+  | m <= 2.0   = '✦'
+  | m <= 3.0   = '✧'
+  | otherwise  = '•'   -- always show named stars, even if faint
 
 joinMaybe :: Maybe (Maybe a) -> Maybe a
 joinMaybe mma = case mma of
@@ -441,26 +583,13 @@ drawFaintLine subW subH masks p0 p1 =
           row   = y `mod` 4
       setDot masks cellX cellY col row
 
-updateBestStar :: IOUArray (Int,Int) Double
-               -> IOUArray (Int,Int) Int
-               -> Int -> Int
-               -> Double -> Int
-               -> IO ()
-updateBestStar bestMag bestColor cellX cellY mag color = do
-  cur <- readArray bestMag (cellX, cellY)
-  when (mag < cur) $ do
-    writeArray bestMag   (cellX, cellY) mag
-    writeArray bestColor (cellX, cellY) color
-
 buildCell :: Int -> Int
-          -> IOUArray (Int,Int) Int
-          -> IOUArray (Int,Int) Int
-          -> IOUArray (Int,Int) Int
-          -> IOUArray (Int,Int) Double
-          -> IOUArray (Int,Int) Int
+          -> IOUArray (Int,Int) Int   -- masks (lines)
+          -> IOUArray (Int,Int) Int   -- overrides (stars)
+          -> IOUArray (Int,Int) Int   -- overridesStyle
           -> Int -> Int
           -> IO (Char, Int)
-buildCell subW subH masks overrides overridesStyle bestStarMag bestStarColor y x = do
+buildCell subW subH masks overrides overridesStyle y x = do
   let inside =
         let cx = x*2 + 1
             cy = y*4 + 2
@@ -468,27 +597,17 @@ buildCell subW subH masks overrides overridesStyle bestStarMag bestStarColor y x
 
   if not inside
     then pure (' ', 0)
-    else if nearBoundaryCell subW subH x y
-      then pure ('·', boundaryStyle)
-      else do
-        ov <- readArray overrides (x,y)
-        if ov /= 0
-          then do
-            sty <- readArray overridesStyle (x,y)
-            pure (chr ov, sty)
+    else do
+      ov <- readArray overrides (x,y)
+      if ov /= 0
+        then do
+          sty <- readArray overridesStyle (x,y)
+          pure (chr ov, sty)
+        else if nearBoundaryCell subW subH x y
+          then pure ('·', boundaryStyle)
           else do
             m <- readArray masks (x,y)
-            if m == 0
-              then pure (' ', 0)
-              else do
-                c <- readArray bestStarColor (x,y)
-                if c /= 0
-                  then do
-                    mag <- readArray bestStarMag (x,y)
-                    let sty = encodeStyle c (intensityForMag mag)
-                    pure (brailleChar m, sty)
-                  else
-                    pure (brailleChar m, lineStyle)
+            pure $ if m == 0 then (' ', 0) else (brailleChar m, lineStyle)
 
 renderRowAnsi :: [(Char, Int)] -> String
 renderRowAnsi cells = go 0 cells
@@ -509,13 +628,14 @@ buildRow :: Int -> Int -> Int
          -> IOUArray (Int,Int) Int
          -> IOUArray (Int,Int) Int
          -> IOUArray (Int,Int) Int
-         -> IOUArray (Int,Int) Double
-         -> IOUArray (Int,Int) Int
          -> Int
          -> IO String
-buildRow subW subH wChars masks overrides overridesStyle bestStarMag bestStarColor y = do
-  cells <- mapM (buildCell subW subH masks overrides overridesStyle bestStarMag bestStarColor y) [0..wChars-1]
+buildRow subW subH wChars masks overrides overridesStyle y = do
+  cells <- mapM (buildCell subW subH masks overrides overridesStyle y) [0..wChars-1]
   pure (renderRowAnsi cells)
+
+--------------------------------------------------------------------------------
+-- Main
 
 main :: IO ()
 main = do
@@ -556,51 +676,39 @@ main = do
       overridesStyle <- newArray ((0,0), (wChars-1, hChars-1)) (0 :: Int)
         :: IO (IOUArray (Int,Int) Int)
 
+      -- Tracks the best (brightest) star already placed in a cell, so multiple stars
+      -- landing on the same cell choose the brightest one.
       bestStarMag <- newArray ((0,0), (wChars-1, hChars-1)) (1/0 :: Double) -- +Infinity
         :: IO (IOUArray (Int,Int) Double)
-
-      bestStarColor <- newArray ((0,0), (wChars-1, hChars-1)) (0 :: Int)
-        :: IO (IOUArray (Int,Int) Int)
 
       let starDots = map (computeStarDot lat lstH subW subH) stars
           lookupDot nm = lookup nm [(stName s, md) | (s, md) <- starDots]
 
+      -- Draw constellation sticks (braille). These will only show where there are no star overrides.
       forM_ asterismEdges $ \(a,b) ->
         case (joinMaybe (lookupDot a), joinMaybe (lookupDot b)) of
           (Just p0, Just p1) -> drawFaintLine subW subH masks p0 p1
           _ -> pure ()
 
+      -- Place stars as per-cell override glyphs (always visible; dim stars get a dim glyph).
       forM_ starDots $ \(s, mdot) ->
         case mdot of
           Nothing -> pure ()
           Just (dx,dy) -> do
             let cellX = dx `div` 2
                 cellY = dy `div` 4
-            if cellX < 0 || cellX >= wChars || cellY < 0 || cellY >= hChars
-              then pure ()
-              else do
-                let color = ansiColorFromHint (stColorHint s)
-                    inten = intensityForMag (stMagV s)
-                    stSty = encodeStyle color inten
-
-                case symbolForMag (stMagV s) of
-                  Just sym -> do
-                    writeArray overrides      (cellX,cellY) (ord sym)
-                    writeArray overridesStyle (cellX,cellY) stSty
-                    updateBestStar bestStarMag bestStarColor cellX cellY (stMagV s) color
-                  Nothing  -> do
-                    forM_ (dotOffsetsForMag (stMagV s)) $ \(ox,oy) -> do
-                      let x' = dx + ox
-                          y' = dy + oy
-                      when (x' >= 0 && x' < subW && y' >= 0 && y' < subH && insideDome subW subH x' y') $ do
-                        let cx' = x' `div` 2
-                            cy' = y' `div` 4
-                            col = x' `mod` 2
-                            row = y' `mod` 4
-                        setDot masks cx' cy' col row
-                        updateBestStar bestStarMag bestStarColor cx' cy' (stMagV s) color
+            when (cellX >= 0 && cellX < wChars && cellY >= 0 && cellY < hChars) $ do
+              cur <- readArray bestStarMag (cellX, cellY)
+              let mag = stMagV s
+              when (mag < cur) $ do
+                writeArray bestStarMag (cellX, cellY) mag
+                let sym   = symbolForMag mag
+                    color = ansiColorFromHint (stColorHint s)
+                    sty   = encodeStyle color (intensityForMag mag)
+                writeArray overrides      (cellX, cellY) (ord sym)
+                writeArray overridesStyle (cellX, cellY) sty
 
       forM_ [0..hChars-1] $ \y -> do
-        row <- buildRow subW subH wChars masks overrides overridesStyle bestStarMag bestStarColor y
+        row <- buildRow subW subH wChars masks overrides overridesStyle y
         putStrLn row
 
